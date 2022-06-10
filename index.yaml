@@ -3,12 +3,12 @@ entries:
   seata:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2022-06-10T15:35:53.306707+08:00"
+    created: "2022-06-10T15:42:47.479101+08:00"
     description: Alibaba Cloud Seata Server Helm chart for Kubernetes
-    digest: e11a16da645073c1950a9de291a49bdfb50805c539cc326883e5dc662cebdb56
+    digest: 3be131aac591a634ee3931aea4fbbf0ba022cd2941090f7f835c173357cc6618
     name: seata
     type: application
     urls:
     - https://royalwang.github.io/seata-server-for-k8s/charts/seata-0.1.0.tgz
     version: 0.1.0
-generated: "2022-06-10T15:35:53.303357+08:00"
+generated: "2022-06-10T15:42:47.478552+08:00"
