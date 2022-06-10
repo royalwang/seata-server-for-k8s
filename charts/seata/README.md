@@ -1,5 +1,5 @@
 # Seata Server
-helm-chart repostory of seata-server
+Alibaba Cloud Seata Server Helm chart for Kubernetes
 
 ## Quick Start 
 
