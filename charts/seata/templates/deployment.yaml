@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "seata.fullname" . }}
+  labels:
+    {{- include "seata.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "seata.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "seata.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "seata.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 7091
+              protocol: TCP
+            - name: server
+              containerPort: 8091
+              protocol: TCP
+          {{- if .Values.volume }}
+          volumeMounts:
+            {{- range .Values.volume }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end}}
+          {{- end}}  
+        {{- if .Values.env }}
+          env:
+          {{- if .Values.env.seataIp }}
+            - name: SEATA_IP
+              value: {{ .Values.env.seataIp  | quote }}
+          {{- end }}
+          {{- if .Values.env.seataPort }}
+            - name: SEATA_PORT
+              value: {{ .Values.env.seataPort | quote }}
+          {{- end }}
+          {{- if .Values.env.seataEnv }}
+            - name: SEATA_ENV
+              value: {{ .Values.env.seataEnv }}
+          {{- end }}
+          {{- if .Values.env.seataConfigName }}
+            - name: SEATA_CONFIG_NAME
+              value: {{ .Values.env.seataConfigName }}
+          {{- end }}
+          {{- if .Values.env.serverNode }}
+            - name: SERVER_NODE
+              value: {{ .Values.env.serverNode | quote }}
+          {{- end }}
+          {{- if .Values.env.storeMode }}
+            - name: STORE_MODE
+              value: {{ .Values.env.storeMode }}
+          {{- end }}
+        {{- end }}    
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.volume }}
+      volumes:
+        {{- range .Values.volume }}
+        - name: {{ .name }}
+          hostPath:
+            path: {{ .hostPath}}
+        {{- end}}
+     {{- end}}
